@@ -2,12 +2,10 @@ const express = require("express");
 const fs = require("fs");
 
 const app = express();
-
-// Middleware
 app.use(express.json());
 
 // =======================
-// HEALTH CHECK (IMPORTANT FOR HOSTING)
+// HOME ROUTE
 // =======================
 app.get("/", (req, res) => {
     res.send("License server is running 🚀");
@@ -39,9 +37,7 @@ app.post("/check", (req, res) => {
             const today = new Date();
             const expiryDate = new Date(expiry);
 
-            // =======================
-            // DEVICE BINDING (FIRST TIME)
-            // =======================
+            // 🔐 First-time device binding
             if (!savedDevice || savedDevice === "") {
                 savedDevice = device;
 
@@ -51,18 +47,14 @@ app.post("/check", (req, res) => {
                 console.log("Device bound:", device);
             }
 
-            // =======================
-            // DEVICE LOCK CHECK
-            // =======================
+            // 🔒 Device lock check
             if (savedDevice !== device) {
                 return res.json({
                     status: "DEVICE_BLOCKED"
                 });
             }
 
-            // =======================
-            // EXPIRY / INSTALLMENT CHECK
-            // =======================
+            // ⏳ Expiry check
             if (today > expiryDate) {
                 return res.json({
                     status: "EXPIRED",
@@ -83,15 +75,7 @@ app.post("/check", (req, res) => {
 });
 
 // =======================
-// START SERVER (IMPORTANT FOR CLOUD)
-// =======================
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("🚀 License server running on port " + PORT);
-});
-// =======================
-// ADD USER (ADMIN)
+// ADD USER (ADMIN ROUTE)
 // =======================
 app.get("/add", (req, res) => {
 
@@ -111,4 +95,13 @@ app.get("/add", (req, res) => {
     fs.appendFileSync("users.db", newUser + "\n");
 
     res.send(`User ${username} added. Expiry: ${formattedDate}`);
+});
+
+// =======================
+// START SERVER
+// =======================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("🚀 Server running on port " + PORT);
 });
