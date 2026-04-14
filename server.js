@@ -90,3 +90,25 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("🚀 License server running on port " + PORT);
 });
+// =======================
+// ADD USER (ADMIN)
+// =======================
+app.get("/add", (req, res) => {
+
+    const { username, days } = req.query;
+
+    if (!username || !days) {
+        return res.send("Usage: /add?username=john&days=30");
+    }
+
+    let expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + parseInt(days));
+
+    const formattedDate = expiryDate.toISOString().split("T")[0];
+
+    const newUser = `${username}|ACTIVE|${formattedDate}|`;
+
+    fs.appendFileSync("users.db", newUser + "\n");
+
+    res.send(`User ${username} added. Expiry: ${formattedDate}`);
+});
